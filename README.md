@@ -126,3 +126,28 @@ Modify new migration to add a sql code to alter the existent Items table to add 
 ## 8 Update Database
 Using Package Manager Console select the DAL.JecaestevezApp.csproj and execute 
 > PM> update-database 
+
+## 9 Add new "Item" model and DbSet
+Add the new Item class model 
+```
+    public class Item
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTime Expiration { get; set; }
+        public bool IsEnable { get; set; }
+    }
+```
+Update DB context to use DbSet Item
+```
+    public class EfDbContext : DbContext
+    {
+        DbSet<Item> Items { get; set; }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            //TODO Extract connection string to a secret
+            optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
+        }
+    }
+```
