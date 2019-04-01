@@ -26,7 +26,7 @@ Build the solution
 
  It's possible to execute the previous command executing in powershell the script "1.SetupGuide.ps1"
 
-# 2 Adding Entity Framework Core packages
+## 2 Adding Entity Framework Core packages
 
 You can also add manual the package opening  terminal and navigate to DatabaseFirst\DAL and  add to "DAL.JecaestevezApp.csproj"  EntityFrameworkCore.SqlServer , EntityFrameworkCore.Tools and Microsoft.EntityFrameworkCore.Design  using the CLI 
 
@@ -37,7 +37,7 @@ You can also add manual the package opening  terminal and navigate to DatabaseFi
 > dotnet add .\DAL\DAL.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.Design 
 
 
-# 3 Add a simple class to be used in a new  DBContext
+## 3 Add a simple class to be used in a new  DBContext
 Add DBContext
 ```
     public class EfDbContext : DbContext
@@ -50,3 +50,15 @@ Add DBContext
         public DbSet<Item> Items { get; set; }
     }
 ```
+
+## 4 Create the first migration
+Add a new migration "CreateDatabase"
+> dotnet ef  migrations add CreateDatabase --startup-project ..\ConsoleApp
+
+It's possible do the same step using the Package Manager Console in Visual Studio, selecting the DAL.JecaestevezApp.csproj and execute 
+> PM > add-migration CreateDatabase
+
+It will be create a folder "Migrations" and the following files:
+* CreateDatabase.cs
+* CreateDatabase.Designer.cs
+* EfDbContextModelSnapshot.cs
