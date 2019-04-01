@@ -122,3 +122,7 @@ Modify new migration to add a sql code to alter the existent Items table to add 
         }
     }
 ```
+
+## 8 Update Database
+Using Package Manager Console select the DAL.JecaestevezApp.csproj and execute 
+> PM> update-database 
