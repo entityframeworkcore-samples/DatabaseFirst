@@ -94,3 +94,9 @@ Modify the file "CreateDatabase.cs" to execute a sql and create the new table "I
         }
     }
 ```
+## 6 Update Database
+Using dotnet EF CLI open powershell console , navigate to "\DAL" and execute the update database
+> dotnet ef database update --startup-project ..\ConsoleApp
+
+Using Package Manager Console select the DAL.JecaestevezApp.csproj and execute 
+> PM> update-database –verbose
