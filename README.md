@@ -18,8 +18,20 @@ Create empty library application "DAL.JecaestevezApp"
 Add the console application to the solution
   > dotnet sln EFDatabaseFirst.JecaestevezApp.sln add DAL/DAL.JecaestevezApp.csproj  
 
-Add a refrence from ConsoleApp to DAL.JecaestevezApp
+Add a reference from ConsoleApp to DAL.JecaestevezApp
   >dotnet add ConsoleApp/ConsoleApp.Jecaestevez.csproj reference DAL/DAL.JecaestevezApp.csproj
 
 Build the solution
  > dotnet build
+
+ It's possible to execute the previous command executing in powershell the script "1.SetupGuide.ps1"
+
+# 2 Adding Entity Framework Core packages
+
+You can also add manual the package opening  terminal and navigate to DatabaseFirst\DAL and  add to "DAL.JecaestevezApp.csproj"  EntityFrameworkCore.SqlServer , EntityFrameworkCore.Tools and Microsoft.EntityFrameworkCore.Design  using the CLI 
+
+> dotnet add .\DAL\DAL.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.SqlServer
+
+> dotnet add .\DAL\DAL.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.Tools 
+
+> dotnet add .\DAL\DAL.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.Design 
