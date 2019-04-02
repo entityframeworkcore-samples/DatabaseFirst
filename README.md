@@ -189,3 +189,27 @@ You can also add manual the package opening  terminal and navigate to DatabaseFi
 Add to "IntegrationTest.JecaestevezApp.csproj"  "Microsoft.EntityFrameworkCore.InMemory" using the CLI 
 
 > dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.InMemory
+
+## 12 Update Database Context 
+Add this two new constructor to the db context "EfDbContext" to enable testing against a different database is to modify your context to expose a constructor that accepts a DbContextOptions<TContext>
+```
+        public EfDbContext()
+        {
+
+        }
+        public EfDbContext(DbContextOptions<EfDbContext> options) : base(options)
+        {
+        }
+```
+
+Add a modification to check if option builder has been configured before configuring database context 
+
+```
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                //TODO Extract connection string to a secret
+                optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
+            }
+```
