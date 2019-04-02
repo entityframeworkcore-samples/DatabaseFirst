@@ -151,3 +151,24 @@ Update DB context to use DbSet Item
         }
     }
 ```
+## 10 Use the data base context to add new "item"
+
+```
+            using (var context = new EfDbContext())
+            {
+                var Item = new Item()
+                {
+                    Name = "Ron Palido",
+                    Description = "Drink",
+                    Expiration = DateTime.Now.AddYears(1)
+
+                };
+                Console.WriteLine($"Item NOT saved -> Id {Item.Id} {Item.Name} {Item.Expiration}");
+
+                context.Add(Item);
+                context.SaveChanges();
+
+                Console.WriteLine($"Item saved -> Id {Item.Id} {Item.Name} {Item.Expiration}");
+                Console.ReadKey();
+            }
+```
