@@ -213,3 +213,49 @@ Add a modification to check if option builder has been configured before configu
                 optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
             }
 ```
+## 13 Add integration test
+To configure in the test the Database context options to use in memory:
+```
+            var options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseInMemoryDatabase(databaseName: "InMemory_EFDatabaseFirstDB")
+             .Options;
+```
+
+The test will looks like this:
+```
+        public void Given_NoItems_Them_AddNewItem()
+        {
+             var options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseInMemoryDatabase(databaseName: "InMemory_EFDatabaseFirstDB")
+             .Options;
+
+            var itemSaved = new Item();
+
+            //Arrange
+            var expirationDay = DateTime.Now.AddYears(1);
+
+            //Act
+            using (var context = new EfDbContext(options))
+            {
+                var newItem = new Item()
+                {
+                    Name = "Ron Palido",
+                    Description = "Drink",
+                    Expiration = expirationDay
+
+                };
+
+                context.Add(newItem);
+                context.SaveChanges();
+
+                itemSaved = context.Items.Find(1);
+            }
+            
+            //Assert            
+            Assert.IsNotNull(itemSaved, "Failed -Item not saved");
+            Assert.AreEqual(itemSaved.Name, "Ron Palido", "Failed - Errons in Field Name");
+            Assert.AreEqual(itemSaved.Description, "Drink", "Failed - Errons in Field Description");
+            Assert.AreEqual(itemSaved.Expiration, expirationDay, "Failed - Errons in Field expiration");
+
+        }
+```
