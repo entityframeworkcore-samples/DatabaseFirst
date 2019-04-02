@@ -172,3 +172,20 @@ Update DB context to use DbSet Item
                 Console.ReadKey();
             }
 ```
+## 11 Create new Testing project and add NuGet package InMemory
+Create an empty mstest project with the name "IntegrationTest.JecaestevezApp"
+ > dotnet new mstest -n IntegrationTest.JecaestevezApp -o IntegrationTest
+
+ Add the created mstest project to the solution
+  > dotnet sln EFDatabaseFirst.JecaestevezApp.sln add IntegrationTest/IntegrationTest.JecaestevezApp.csproj  
+
+ Add a reference from IntegrationTest.JecaestevezApp to DAL.JecaestevezApp
+  >dotnet add IntegrationTest/IntegrationTest.JecaestevezApp.csproj reference DAL/DAL.JecaestevezApp.csproj
+
+Open Package Manager Console in Visual Studio, selecting the IntegrationTest.JecaestevezApp..csproj and execute 
+> Install-Package Microsoft.EntityFrameworkCore.InMemory
+
+You can also add manual the package opening  terminal and navigate to DatabaseFirst\IntegrationTest.JecaestevezApp.
+Add to "IntegrationTest.JecaestevezApp.csproj"  "Microsoft.EntityFrameworkCore.InMemory" using the CLI 
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.InMemory
