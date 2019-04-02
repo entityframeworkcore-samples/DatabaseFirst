@@ -172,3 +172,90 @@ Update DB context to use DbSet Item
                 Console.ReadKey();
             }
 ```
+## 11 Create new Testing project and add NuGet package InMemory
+Create an empty mstest project with the name "IntegrationTest.JecaestevezApp"
+ > dotnet new mstest -n IntegrationTest.JecaestevezApp -o IntegrationTest
+
+ Add the created mstest project to the solution
+  > dotnet sln EFDatabaseFirst.JecaestevezApp.sln add IntegrationTest/IntegrationTest.JecaestevezApp.csproj  
+
+ Add a reference from IntegrationTest.JecaestevezApp to DAL.JecaestevezApp
+  >dotnet add IntegrationTest/IntegrationTest.JecaestevezApp.csproj reference DAL/DAL.JecaestevezApp.csproj
+
+Open Package Manager Console in Visual Studio, selecting the IntegrationTest.JecaestevezApp..csproj and execute 
+> Install-Package Microsoft.EntityFrameworkCore.InMemory
+
+You can also add manual the package opening  terminal and navigate to DatabaseFirst\IntegrationTest.JecaestevezApp.
+Add to "IntegrationTest.JecaestevezApp.csproj"  "Microsoft.EntityFrameworkCore.InMemory" using the CLI 
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.InMemory
+
+## 12 Update Database Context 
+Add this two new constructor to the db context "EfDbContext" to enable testing against a different database is to modify your context to expose a constructor that accepts a DbContextOptions<TContext>
+```
+        public EfDbContext()
+        {
+
+        }
+        public EfDbContext(DbContextOptions<EfDbContext> options) : base(options)
+        {
+        }
+```
+
+Add a modification to check if option builder has been configured before configuring database context 
+
+```
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                //TODO Extract connection string to a secret
+                optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
+            }
+```
+## 13 Add integration test
+To configure in the test the Database context options to use in memory:
+```
+            var options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseInMemoryDatabase(databaseName: "InMemory_EFDatabaseFirstDB")
+             .Options;
+```
+
+The test will looks like this:
+```
+        public void Given_NoItems_Them_AddNewItem()
+        {
+             var options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseInMemoryDatabase(databaseName: "InMemory_EFDatabaseFirstDB")
+             .Options;
+
+            var itemSaved = new Item();
+
+            //Arrange
+            var expirationDay = DateTime.Now.AddYears(1);
+
+            //Act
+            using (var context = new EfDbContext(options))
+            {
+                var newItem = new Item()
+                {
+                    Name = "Ron Palido",
+                    Description = "Drink",
+                    Expiration = expirationDay
+
+                };
+
+                context.Add(newItem);
+                context.SaveChanges();
+
+                itemSaved = context.Items.Find(1);
+            }
+            
+            //Assert            
+            Assert.IsNotNull(itemSaved, "Failed -Item not saved");
+            Assert.AreEqual(itemSaved.Name, "Ron Palido", "Failed - Errons in Field Name");
+            Assert.AreEqual(itemSaved.Description, "Drink", "Failed - Errons in Field Description");
+            Assert.AreEqual(itemSaved.Expiration, expirationDay, "Failed - Errons in Field expiration");
+
+        }
+```
