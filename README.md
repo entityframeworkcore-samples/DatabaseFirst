@@ -259,7 +259,7 @@ The test will looks like this:
 
         }
 ```
-# 14 Integration test with Sqlite
+## 14 Integration test with Sqlite
 To configure in the test to use in SqlLite it's necessary use a sql connection having as datasource "memory"
 ```
 	var connection = new SqliteConnection("DataSource=:memory:");
@@ -305,3 +305,53 @@ The test using sqlLite will have :
     }
 ```
 [SqlLite limitations](https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations) 
+
+## 15 Testing using new created Sql Server DB  
+
+Create a dynamic connection string  with a dynamic DbName
+```
+    string randomDBName = "EFDatabaseFirstDB" + Guid.NewGuid();
+
+    _options = new DbContextOptionsBuilder<EfDbContext>()
+        .UseSqlServer($"Server=.;Database={randomDBName};Trusted_Connection=True;MultipleActiveResultSets=true")
+        .Options;
+```
+Force execute migration in the new dynamic DB
+```
+                context.Database.Migrate();
+```
+
+Build a test initialization to create the  new DB
+```
+    [TestClass]
+    public class IntegrationTestSqlServerDal
+    {
+        private DbContextOptions<EfDbContext> _options;
+
+        [TestInitialize]
+        public void Init()
+        {
+            string randomDBName = "EFDatabaseFirstDB" + Guid.NewGuid();
+
+            _options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseSqlServer($"Server=.;Database={randomDBName};Trusted_Connection=True;MultipleActiveResultSets=true")
+             .Options;
+
+            using (var context = new EfDbContext(_options))
+            {
+                context.Database.Migrate();
+            };
+        }
+    }
+```
+Destroy dynamic db on finish test
+```
+[TestCleanup]
+        public void Clean()
+        {
+            using (var context = new EfDbContext(_options))
+            {
+                context.Database.EnsureDeleted();
+            }
+        }
+```
