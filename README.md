@@ -213,7 +213,7 @@ Add a modification to check if option builder has been configured before configu
                 optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
             }
 ```
-## 13 Add integration test
+## 13 Add integration test using in memory
 To configure in the test the Database context options to use in memory:
 ```
             var options = new DbContextOptionsBuilder<EfDbContext>()
@@ -259,3 +259,49 @@ The test will looks like this:
 
         }
 ```
+# 14 Integration test with Sqlite
+To configure in the test to use in SqlLite it's necessary use a sql connection having as datasource "memory"
+```
+	var connection = new SqliteConnection("DataSource=:memory:");
+```
+To use the `SqliteConnection` reference the NuGet package `Microsoft.Data.Sqlite`.
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.Data.Sqlite
+
+
+This new sql connection will be used to build the database context specifying to .UseSqlite(connection)
+```
+    var options = new DbContextOptionsBuilder<EfDbContext>()
+    .UseSqlite(connection)
+    .Options;
+```
+
+To use the `.UseSqlite()` extension method, reference the NuGet package `Microsoft.EntityFrameworkCore.Sqlite`
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.Sqlite
+
+The test using sqlLite will have :
+```
+    // In-memory database only exists while the connection is open
+    var connection = new SqliteConnection("DataSource=:memory:");
+    connection.Open();
+    
+    try 
+    {
+        var options = new DbContextOptionsBuilder<EfDbContext>()
+        .UseSqlite(connection)
+        .Options;
+        
+        // Create the schema in the database
+        using (var context = new EfDbContext(options))
+        {
+            context.Database.EnsureCreated();
+        }
+
+    }
+    finally
+    {
+        connection.Close();
+    }
+```
+[SqlLite limitations](https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations) 
