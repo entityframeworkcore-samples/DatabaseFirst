@@ -7,7 +7,7 @@ using System;
 namespace IntegrationTest.JecaestevezApp
 {
     [TestClass]
-    public class IntegrationTestDal
+    public class IntegrationTestInMemoryDal
     {
         [TestMethod]
         public void Given_NoItems_Them_AddNewItem()
