@@ -213,7 +213,7 @@ Add a modification to check if option builder has been configured before configu
                 optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
             }
 ```
-## 13 Add integration test
+## 13 Add integration test using in memory
 To configure in the test the Database context options to use in memory:
 ```
             var options = new DbContextOptionsBuilder<EfDbContext>()
@@ -257,5 +257,101 @@ The test will looks like this:
             Assert.AreEqual(itemSaved.Description, "Drink", "Failed - Errons in Field Description");
             Assert.AreEqual(itemSaved.Expiration, expirationDay, "Failed - Errons in Field expiration");
 
+        }
+```
+## 14 Integration test with Sqlite
+To configure in the test to use in SqlLite it's necessary use a sql connection having as datasource "memory"
+```
+	var connection = new SqliteConnection("DataSource=:memory:");
+```
+To use the `SqliteConnection` reference the NuGet package `Microsoft.Data.Sqlite`.
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.Data.Sqlite
+
+
+This new sql connection will be used to build the database context specifying to .UseSqlite(connection)
+```
+    var options = new DbContextOptionsBuilder<EfDbContext>()
+    .UseSqlite(connection)
+    .Options;
+```
+
+To use the `.UseSqlite()` extension method, reference the NuGet package `Microsoft.EntityFrameworkCore.Sqlite`
+
+> dotnet add .\IntegrationTest\IntegrationTest.JecaestevezApp.csproj package Microsoft.EntityFrameworkCore.Sqlite
+
+The test using sqlLite will have :
+```
+    // In-memory database only exists while the connection is open
+    var connection = new SqliteConnection("DataSource=:memory:");
+    connection.Open();
+    
+    try 
+    {
+        var options = new DbContextOptionsBuilder<EfDbContext>()
+        .UseSqlite(connection)
+        .Options;
+        
+        // Create the schema in the database
+        using (var context = new EfDbContext(options))
+        {
+            context.Database.EnsureCreated();
+        }
+
+    }
+    finally
+    {
+        connection.Close();
+    }
+```
+[SqlLite limitations](https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations) 
+
+## 15 Testing using new created Sql Server DB  
+
+Create a dynamic connection string  with a dynamic DbName
+```
+    string randomDBName = "EFDatabaseFirstDB" + Guid.NewGuid();
+
+    _options = new DbContextOptionsBuilder<EfDbContext>()
+        .UseSqlServer($"Server=.;Database={randomDBName};Trusted_Connection=True;MultipleActiveResultSets=true")
+        .Options;
+```
+Force execute migration in the new dynamic DB
+```
+                context.Database.Migrate();
+```
+
+Build a test initialization to create the  new DB
+```
+    [TestClass]
+    public class IntegrationTestSqlServerDal
+    {
+        private DbContextOptions<EfDbContext> _options;
+
+        [TestInitialize]
+        public void Init()
+        {
+            string randomDBName = "EFDatabaseFirstDB" + Guid.NewGuid();
+
+            _options = new DbContextOptionsBuilder<EfDbContext>()
+             .UseSqlServer($"Server=.;Database={randomDBName};Trusted_Connection=True;MultipleActiveResultSets=true")
+             .Options;
+
+            using (var context = new EfDbContext(_options))
+            {
+                context.Database.Migrate();
+            };
+        }
+    }
+```
+Destroy dynamic db on finish test
+```
+[TestCleanup]
+        public void Clean()
+        {
+            using (var context = new EfDbContext(_options))
+            {
+                context.Database.EnsureDeleted();
+            }
         }
 ```

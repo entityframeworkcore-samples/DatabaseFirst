@@ -1,5 +1,6 @@
 using DAL.JecaestevezApp;
 using DAL.JecaestevezApp.Models;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -7,23 +8,31 @@ using System;
 namespace IntegrationTest.JecaestevezApp
 {
     [TestClass]
-    public class IntegrationTestDal
+    public class IntegrationTestSqlLiteDal
     {
         [TestMethod]
         public void Given_NoItems_Them_AddNewItem()
         {
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+
             var options = new DbContextOptionsBuilder<EfDbContext>()
-             .UseInMemoryDatabase(databaseName: "InMemory_EFDatabaseFirstDB")
-             .Options;
+              .UseSqlite(connection)
+              .Options;
 
             var itemSaved = new Item();
 
             //Arrange
             var expirationDay = DateTime.Now.AddYears(1);
-
+            // Create the schema in the database
+            using (var context = new EfDbContext(options))
+            {
+                context.Database.EnsureCreated();
+            }
             //Act
             using (var context = new EfDbContext(options))
             {
+                context.Database.EnsureCreated();
                 var newItem = new Item()
                 {
                     Name = "Ron Palido",
@@ -37,7 +46,7 @@ namespace IntegrationTest.JecaestevezApp
 
                 itemSaved = context.Items.Find(1);
             }
-            
+
             //Assert            
             Assert.IsNotNull(itemSaved, "Failed -Item not saved");
             Assert.AreEqual(itemSaved.Name, "Ron Palido", "Failed - Errons in Field Name");
