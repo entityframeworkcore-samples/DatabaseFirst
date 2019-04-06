@@ -47,7 +47,6 @@ Add DBContext
             //TODO Extract connection string to a secret
             optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
-        public DbSet<Item> Items { get; set; }
     }
 ```
 
