@@ -145,3 +145,27 @@ Add a new settings file "appsettins.json" to DAL.JecaestevezApp.csproj
   }
 }
 ```
+## 11 Read connection string from appsettings.json 
+
+Use Configuration Builder to create a helper " IConfigurationRoot _configuration" to read the the settings file 
+```
+public class EfDbContext : DbContext
+{
+    private static IConfigurationRoot _configuration;
+
+    public EfDbContext()
+    {
+        var dbo = new DbContextOptionsBuilder<EfDbContext>();
+        var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true);
+
+        _configuration = builder.Build();
+    }
+}
+```
+Modify "OnConfiguring" to read the connection string from the appsetting.json using the _configuration helper like a dictionary "_configuration["ConnectionStrings:Database"]"
+```
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optBuilder.UseSqlServer(_configuration["ConnectionStrings:Database"]);
+    }
+```
