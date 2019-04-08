@@ -126,3 +126,22 @@ Modify new migration to add a sql code to alter the existent Items table to add 
 ## 8 Update Database
 Using Package Manager Console select the DAL.JecaestevezApp.csproj and execute 
 > PM> update-database 
+
+
+## 9 Adding Nuget packages for Configuration
+
+You can also add manual the package opening  terminal and navigate to DatabaseFirst\DAL and  add to "DAL.JecaestevezApp.csproj"  Microsoft.Extensions.Configuration.Json  using the CLI 
+
+> dotnet add .\DAL\DAL.JecaestevezApp.csproj package Microsoft.Extensions.Configuration.Json
+
+> dotnet add .\DAL\DAL.JecaestevezApp.csproj package MicrosoftMicrosoft.Extensions.Configuration
+
+## 10 Adding settings file  AppSettings 
+Add a new settings file "appsettins.json" to DAL.JecaestevezApp.csproj
+```
+{
+  "ConnectionStrings": {
+    "Database": "Server=.\\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true;"
+  }
+}
+```
