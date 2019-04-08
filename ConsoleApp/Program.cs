@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.JecaestevezApp;
+using System;
 
 namespace ConsoleApp.Jecaestevez
 {
@@ -7,6 +8,9 @@ namespace ConsoleApp.Jecaestevez
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+            using (var context = new EfDbContext())
+            {
+            }
         }
     }
 }

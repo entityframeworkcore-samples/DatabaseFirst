@@ -1,14 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
+using Microsoft.Extensions.Configuration;
 
 namespace DAL.JecaestevezApp
 {
     public class EfDbContext : DbContext
     {
+        private static IConfigurationRoot _configuration;
+
+        public EfDbContext()
+        {
+            var dbo = new DbContextOptionsBuilder<EfDbContext>();
+            var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true);
+
+            _configuration = builder.Build();
+            UseSqlServer(dbo);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //TODO Extract connection string to a secret
-            optionsBuilder.UseSqlServer(@"Server=.\;Database=EFDatabaseFirstDB;Trusted_Connection=True;MultipleActiveResultSets=true");
+            UseSqlServer(optionsBuilder);
+        }
+
+        void UseSqlServer(DbContextOptionsBuilder optBuilder)
+        {
+            if (!optBuilder.IsConfigured)
+            {
+                var dbOptionsBuilder = optBuilder.UseSqlServer(_configuration["ConnectionStrings:Database"]);
+            }
         }
     }
 }
